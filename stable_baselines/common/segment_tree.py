@@ -1,4 +1,4 @@
-import operator
+import numpy as np
 
 
 class SegmentTree(object):
@@ -26,6 +26,7 @@ class SegmentTree(object):
         self._capacity = capacity
         self._value = [neutral_element for _ in range(2 * capacity)]
         self._operation = operation
+        self.neutral_element=neutral_element
 
     def _reduce_helper(self, start, end, node, node_start, node_end):
         if start == node_start and end == node_end:
@@ -61,29 +62,41 @@ class SegmentTree(object):
         return self._reduce_helper(start, end, 1, 0, self._capacity - 1)
 
     def __setitem__(self, idx, val):
-        # index of the leaf
-        idx += self._capacity
-        self._value[idx] = val
-        idx //= 2
-        while idx >= 1:
-            self._value[idx] = self._operation(
-                self._value[2 * idx],
-                self._value[2 * idx + 1]
-            )
-            idx //= 2
+        # indexes of the leaf
+        idxs = idx + self._capacity
+        self._value[idxs] = val
+        if type(idxs) is np.ndarray:
+            #rebuild the tree (should speed things up due to vectorization)
+            idxs=np.arange(self._capacity)+self._capacity
+            idxs //= 2
+            #by construction, all indexes reach 0 at the same time
+            while np.any(idxs >= 1):
+                self._value[idxs] = self._operation(
+                    self._value[2 * idxs],
+                    self._value[2 * idxs + 1]
+                )
+                idxs //= 2
+        else:
+            idxs //= 2
+            while idxs >= 1:
+                self._value[idxs] = self._operation(
+                    self._value[2 * idxs],
+                    self._value[2 * idxs + 1]
+                )
+                idxs //= 2
 
     def __getitem__(self, idx):
-        assert 0 <= idx < self._capacity
+        assert 0 <= np.max(idx) < self._capacity
         return self._value[self._capacity + idx]
-
 
 class SumSegmentTree(SegmentTree):
     def __init__(self, capacity):
         super(SumSegmentTree, self).__init__(
             capacity=capacity,
-            operation=operator.add,
+            operation=np.add,
             neutral_element=0.0
         )
+        self._value=np.array(self._value)
 
     def sum(self, start=0, end=None):
         """
@@ -98,33 +111,47 @@ class SumSegmentTree(SegmentTree):
     def find_prefixsum_idx(self, prefixsum):
         """
         Find the highest index `i` in the array such that
-            sum(arr[0] + arr[1] + ... + arr[i - i]) <= prefixsum
+            sum(arr[0] + arr[1] + ... + arr[i - i]) <= prefixsum for each entry in prefixsum
 
         if array values are probabilities, this function
         allows to sample indexes according to the discrete
         probability efficiently.
 
-        :param prefixsum: (float) upperbound on the sum of array prefix
-        :return: (int) highest index satisfying the prefixsum constraint
+        :param prefixsum: (numpy float) upper bounds on the sum of array prefix
+        :return: (numpy int) highest indexes satisfying the prefixsum constraint
         """
-        assert 0 <= prefixsum <= self.sum() + 1e-5
-        idx = 1
-        while idx < self._capacity:  # while non-leaf
-            if self._value[2 * idx] > prefixsum:
-                idx = 2 * idx
-            else:
-                prefixsum -= self._value[2 * idx]
-                idx = 2 * idx + 1
+        if type(prefixsum) is float:
+            prefixsum = np.array([prefixsum])
+        assert 0 <= np.min(prefixsum)
+        assert np.max(prefixsum) <= self.sum() + 1e-5
+        assert isinstance(prefixsum[0], float)
+
+
+        idx = np.zeros(len(prefixsum),dtype=int)+1
+        cont = np.logical_not(np.zeros(len(prefixsum),dtype=bool))
+
+        while np.any(cont):  # while non-leaf
+            idx[cont] = 2 * idx[cont]
+            prefixsum_new = np.where(self._value[idx] <= prefixsum, prefixsum-self._value[idx],prefixsum)
+            #only update non-leaf nodes.
+            idx = np.where(np.logical_or(self._value[idx]>prefixsum,np.logical_not(cont)),idx,idx+1)
+            prefixsum = prefixsum_new
+            cont = idx < self._capacity
         return idx - self._capacity
+
+
+
+
 
 
 class MinSegmentTree(SegmentTree):
     def __init__(self, capacity):
         super(MinSegmentTree, self).__init__(
             capacity=capacity,
-            operation=min,
+            operation=np.minimum,
             neutral_element=float('inf')
         )
+        self._value = np.array(self._value)
 
     def min(self, start=0, end=None):
         """
