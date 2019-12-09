@@ -134,7 +134,7 @@ class PrioritizedReplayBuffer(ReplayBuffer):
         self._it_min[idx] = self._max_priority ** self._alpha
 
     def _sample_proportional(self, batch_size):
-        mass=[]
+        mass = []
         total = self._it_sum.sum(0, len(self._storage) - 1)
         for _ in range(batch_size):
             # TODO(szymon): should we ensure no repeats?

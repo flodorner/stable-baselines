@@ -26,7 +26,7 @@ class SegmentTree(object):
         self._capacity = capacity
         self._value = [neutral_element for _ in range(2 * capacity)]
         self._operation = operation
-        self.neutral_element=neutral_element
+        self.neutral_element = neutral_element
 
     def _reduce_helper(self, start, end, node, node_start, node_end):
         if start == node_start and end == node_end:
@@ -65,9 +65,9 @@ class SegmentTree(object):
         # indexes of the leaf
         idxs = idx + self._capacity
         self._value[idxs] = val
-        if type(idxs) is np.ndarray:
+        if isinstance(idxs, np.ndarray):
             #rebuild the tree (should speed things up due to vectorization)
-            idxs=np.arange(self._capacity)+self._capacity
+            idxs = np.arange(self._capacity)+self._capacity
             idxs //= 2
             #by construction, all indexes reach 0 at the same time
             while np.any(idxs >= 1):
@@ -89,6 +89,7 @@ class SegmentTree(object):
         assert 0 <= np.max(idx) < self._capacity
         return self._value[self._capacity + idx]
 
+
 class SumSegmentTree(SegmentTree):
     def __init__(self, capacity):
         super(SumSegmentTree, self).__init__(
@@ -96,7 +97,7 @@ class SumSegmentTree(SegmentTree):
             operation=np.add,
             neutral_element=0.0
         )
-        self._value=np.array(self._value)
+        self._value = np.array(self._value)
 
     def sum(self, start=0, end=None):
         """
@@ -120,21 +121,20 @@ class SumSegmentTree(SegmentTree):
         :param prefixsum: (numpy float) upper bounds on the sum of array prefix
         :return: (numpy int) highest indexes satisfying the prefixsum constraint
         """
-        if type(prefixsum) is float:
+        if isinstance(prefixsum, float):
             prefixsum = np.array([prefixsum])
         assert 0 <= np.min(prefixsum)
         assert np.max(prefixsum) <= self.sum() + 1e-5
         assert isinstance(prefixsum[0], float)
 
-
-        idx = np.zeros(len(prefixsum),dtype=int)+1
-        cont = np.logical_not(np.zeros(len(prefixsum),dtype=bool))
+        idx = np.zeros(len(prefixsum), dtype=int)+1
+        cont = np.logical_not(np.zeros(len(prefixsum), dtype=bool))
 
         while np.any(cont):  # while non-leaf
             idx[cont] = 2 * idx[cont]
-            prefixsum_new = np.where(self._value[idx] <= prefixsum, prefixsum-self._value[idx],prefixsum)
+            prefixsum_new = np.where(self._value[idx] <= prefixsum, prefixsum-self._value[idx], prefixsum)
             #only update non-leaf nodes.
-            idx = np.where(np.logical_or(self._value[idx]>prefixsum,np.logical_not(cont)),idx,idx+1)
+            idx = np.where(np.logical_or(self._value[idx] > prefixsum, np.logical_not(cont)), idx, idx+1)
             prefixsum = prefixsum_new
             cont = idx < self._capacity
         return idx - self._capacity

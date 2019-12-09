@@ -9,7 +9,7 @@ def test_tree_set():
     """
     tree = SumSegmentTree(4)
 
-    tree[np.array([2,3])] = [1.0,3.0]
+    tree[np.array([2, 3])] = [1.0, 3.0]
 
     assert np.isclose(tree.sum(), 4.0)
     assert np.isclose(tree.sum(0, 2), 0.0)
@@ -86,10 +86,6 @@ def test_prefixsum_idx():
     assert tree.find_prefixsum_idx(4.00) == 3
     assert np.all(tree.find_prefixsum_idx([0.0, 0.5, 0.99, 1.01, 3.00, 4.00]) == [2, 2, 2, 3, 3, 3])
 
-    tree = SumSegmentTree(4)
-
-
-
 
 def test_prefixsum_idx2():
     """
@@ -97,7 +93,7 @@ def test_prefixsum_idx2():
     """
     tree = SumSegmentTree(4)
 
-    tree[np.array([0,1,2, 3])] = [0.5, 1.0, 1.0, 3.0]
+    tree[np.array([0, 1, 2, 3])] = [0.5, 1.0, 1.0, 3.0]
 
     assert tree.find_prefixsum_idx(0.00) == 0
     assert tree.find_prefixsum_idx(0.55) == 1
