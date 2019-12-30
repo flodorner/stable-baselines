@@ -66,10 +66,10 @@ class SegmentTree(object):
         idxs = idx + self._capacity
         self._value[idxs] = val
         if isinstance(idxs, np.ndarray):
-            #rebuild the tree (should speed things up due to vectorization)
+            # rebuild the tree (should speed things up due to vectorization)
             idxs = np.arange(self._capacity)+self._capacity
             idxs //= 2
-            #by construction, all indexes reach 0 at the same time
+            # by construction, all indexes reach 0 at the same time
             while np.any(idxs >= 1):
                 self._value[idxs] = self._operation(
                     self._value[2 * idxs],
@@ -118,8 +118,8 @@ class SumSegmentTree(SegmentTree):
         allows to sample indexes according to the discrete
         probability efficiently.
 
-        :param prefixsum: (numpy float) upper bounds on the sum of array prefix
-        :return: (numpy int) highest indexes satisfying the prefixsum constraint
+        :param prefixsum: (ndarray) float upper bounds on the sum of array prefix
+        :return: (ndarray) highest indexes satisfying the prefixsum constraint
         """
         if isinstance(prefixsum, float):
             prefixsum = np.array([prefixsum])
@@ -127,14 +127,14 @@ class SumSegmentTree(SegmentTree):
         assert np.max(prefixsum) <= self.sum() + 1e-5
         assert isinstance(prefixsum[0], float)
 
-        idx = np.zeros(len(prefixsum), dtype=int)+1
+        idx = np.zeros(len(prefixsum), dtype=int) + 1
         cont = np.logical_not(np.zeros(len(prefixsum), dtype=bool))
 
         while np.any(cont):  # while non-leaf
             idx[cont] = 2 * idx[cont]
             prefixsum_new = np.where(self._value[idx] <= prefixsum, prefixsum-self._value[idx], prefixsum)
-            #only update non-leaf nodes.
-            idx = np.where(np.logical_or(self._value[idx] > prefixsum, np.logical_not(cont)), idx, idx+1)
+            # only update non-leaf nodes.
+            idx = np.where(np.logical_or(self._value[idx] > prefixsum, np.logical_not(cont)), idx, idx + 1)
             prefixsum = prefixsum_new
             cont = idx < self._capacity
         return idx - self._capacity

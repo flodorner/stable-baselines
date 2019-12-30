@@ -139,7 +139,7 @@ class PrioritizedReplayBuffer(ReplayBuffer):
         for _ in range(batch_size):
             # TODO(szymon): should we ensure no repeats?
             mass.append(random.random() * total)
-        idx = self._it_sum.find_prefixsum_idx(mass)
+        idx = self._it_sum.find_prefixsum_idx(np.array(mass))
         return idx
 
     def sample(self, batch_size, beta=0):
