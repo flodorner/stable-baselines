@@ -14,6 +14,7 @@ Breaking Changes:
 
 New Features:
 ^^^^^^^^^^^^^
+- Parallelized updating and sampling from the replay buffer in DQN. (@flodorner)
 
 Bug Fixes:
 ^^^^^^^^^^
