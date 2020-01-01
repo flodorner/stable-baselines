@@ -67,7 +67,7 @@ class SegmentTree(object):
         self._value[idxs] = val
         if isinstance(idxs, np.ndarray):
             # rebuild the tree (should speed things up due to vectorization)
-            idxs = np.arange(self._capacity)+self._capacity
+            idxs = np.arange(self._capacity) + self._capacity
             idxs //= 2
             # by construction, all indexes reach 0 at the same time
             while np.any(idxs >= 1):
@@ -86,7 +86,8 @@ class SegmentTree(object):
                 idxs //= 2
 
     def __getitem__(self, idx):
-        assert 0 <= np.max(idx) < self._capacity
+        assert np.max(idx) < self._capacity
+        assert 0 <= np.min(idx)
         return self._value[self._capacity + idx]
 
 
@@ -127,7 +128,7 @@ class SumSegmentTree(SegmentTree):
         assert np.max(prefixsum) <= self.sum() + 1e-5
         assert isinstance(prefixsum[0], float)
 
-        idx = np.zeros(len(prefixsum), dtype=int) + 1
+        idx = np.ones(len(prefixsum), dtype=int)
         cont = np.logical_not(np.zeros(len(prefixsum), dtype=bool))
 
         while np.any(cont):  # while non-leaf
