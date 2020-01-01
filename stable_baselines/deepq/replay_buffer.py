@@ -136,10 +136,9 @@ class PrioritizedReplayBuffer(ReplayBuffer):
     def _sample_proportional(self, batch_size):
         mass = []
         total = self._it_sum.sum(0, len(self._storage) - 1)
-        for _ in range(batch_size):
-            # TODO(szymon): should we ensure no repeats?
-            mass.append(random.random() * total)
-        idx = self._it_sum.find_prefixsum_idx(np.array(mass))
+        # TODO(szymon): should we ensure no repeats?
+        mass = np.random.random(size=batch_size) * total
+        idx = self._it_sum.find_prefixsum_idx(mass)
         return idx
 
     def sample(self, batch_size, beta=0):

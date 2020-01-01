@@ -119,8 +119,8 @@ class SumSegmentTree(SegmentTree):
         allows to sample indexes according to the discrete
         probability efficiently.
 
-        :param prefixsum: (ndarray) float upper bounds on the sum of array prefix
-        :return: (ndarray) highest indexes satisfying the prefixsum constraint
+        :param prefixsum: (np.ndarray) float upper bounds on the sum of array prefix
+        :return: (np.ndarray) highest indexes satisfying the prefixsum constraint
         """
         if isinstance(prefixsum, float):
             prefixsum = np.array([prefixsum])
@@ -133,16 +133,12 @@ class SumSegmentTree(SegmentTree):
 
         while np.any(cont):  # while non-leaf
             idx[cont] = 2 * idx[cont]
-            prefixsum_new = np.where(self._value[idx] <= prefixsum, prefixsum-self._value[idx], prefixsum)
+            prefixsum_new = np.where(self._value[idx] <= prefixsum, prefixsum - self._value[idx], prefixsum)
             # only update non-leaf nodes.
             idx = np.where(np.logical_or(self._value[idx] > prefixsum, np.logical_not(cont)), idx, idx + 1)
             prefixsum = prefixsum_new
             cont = idx < self._capacity
         return idx - self._capacity
-
-
-
-
 
 
 class MinSegmentTree(SegmentTree):
