@@ -193,3 +193,11 @@ class PrioritizedReplayBuffer(ReplayBuffer):
 
         self._max_priority = max(self._max_priority, np.max(priorities))
 
+
+a=PrioritizedReplayBuffer(5000,1)
+for j in range(100):
+    for i in range(10):
+        a.add(i,i*2,i*2,i*6,i)
+    idx=a.sample(1000,beta=0.5)[-1]
+    a.update_priorities(idx,np.random.random(size=len(idx)))
+
