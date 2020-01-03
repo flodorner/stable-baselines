@@ -1,10 +1,14 @@
 import numpy as np
 
+
 def unique(sorted_array):
+    if len(sorted_array) == 1:
+        return sorted_array
     left = sorted_array[:-1]
     right = sorted_array[1:]
     uniques = np.append(right != left, True)
     return sorted_array[uniques]
+
 
 class SegmentTree(object):
     def __init__(self, capacity, operation, neutral_element):
@@ -70,25 +74,16 @@ class SegmentTree(object):
         # indexes of the leaf
         idxs = idx + self._capacity
         self._value[idxs] = val
-        if isinstance(idxs, np.ndarray):
-            # rebuild the tree (should speed things up due to vectorization)
-            idxs = np.arange(self._capacity) + self._capacity
+        if isinstance(idxs, int):
+            idxs = np.array([idxs])
+        # rebuild the tree
+        idxs = unique(idxs // 2)
+        while len(idxs) > 1 or idxs[0] > 0:
+            self._value[idxs] = self._operation(
+                self._value[2 * idxs],
+                self._value[2 * idxs + 1]
+            )
             idxs = unique(idxs // 2)
-            # by construction, all indexes reach 0 at the same time
-            while np.any(idxs >= 1):
-                self._value[idxs] = self._operation(
-                    self._value[2 * idxs],
-                    self._value[2 * idxs + 1]
-                )
-                idxs = unique(idxs // 2)
-        else:
-            idxs //= 2
-            while idxs >= 1:
-                self._value[idxs] = self._operation(
-                    self._value[2 * idxs],
-                    self._value[2 * idxs + 1]
-                )
-                idxs //= 2
 
     def __getitem__(self, idx):
         assert np.max(idx) < self._capacity
