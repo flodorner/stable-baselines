@@ -165,7 +165,7 @@ def test_max_interval_tree():
     assert np.isclose(tree.min(2, 4), 0.5)
     assert np.isclose(tree.min(3, 4), 3.0)
 
-    tree[np.array(2)] = 0.7
+    tree[np.array([2])] = 0.7
 
     assert np.isclose(tree.min(), 0.7)
     assert np.isclose(tree.min(0, 2), 1.0)
@@ -174,7 +174,7 @@ def test_max_interval_tree():
     assert np.isclose(tree.min(2, 4), 0.7)
     assert np.isclose(tree.min(3, 4), 3.0)
 
-    tree[np.array(2)] = 4.0
+    tree[np.array([2])] = 4.0
 
     assert np.isclose(tree.min(), 1.0)
     assert np.isclose(tree.min(0, 2), 1.0)
