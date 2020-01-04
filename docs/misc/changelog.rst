@@ -16,8 +16,12 @@ New Features:
 ^^^^^^^^^^^^^
 - Parallelized updating and sampling from the replay buffer in DQN. (@flodorner)
 
+- Docker build script, `scripts/build_docker.sh`, can push images automatically.
+
 Bug Fixes:
 ^^^^^^^^^^
+
+- Fixed Docker build script, `scripts/build_docker.sh`, to pass `USE_GPU` build argument.
 
 Deprecations:
 ^^^^^^^^^^^^^
