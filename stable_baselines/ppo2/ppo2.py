@@ -266,7 +266,10 @@ class PPO2(ActorCriticRLModel):
         :param cliprange_vf: (float) Clipping factor for the value function
         """
         advs = returns - values
-        advs = (advs - advs.mean()) / (advs.std() + 1e-8)
+        #  advs= = (advs - advs.mean()) / (advs.std() + 1e-8)
+        advs = advs.reshape((self.n_envs, self.n_steps))
+        advs = (advs - advs.mean(axis=-1, keepdims=True)) / (advs.std(axis=-1, keepdims=True) + 1e-8)
+        advs = advs.ravel()
         td_map = {self.train_model.obs_ph: obs, self.action_ph: actions,
                   self.advs_ph: advs, self.rewards_ph: returns,
                   self.learning_rate_ph: learning_rate, self.clip_range_ph: cliprange,
